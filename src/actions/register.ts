@@ -50,6 +50,7 @@ export async function registerUser(
       email,
       username,
       displayName: displayName || username,
+      image: "/tuntun_sahur.jpg",
       passwordHash,
       emailVerified: new Date(),
     },

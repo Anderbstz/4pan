@@ -22,6 +22,16 @@ export async function Navbar() {
                   + Nuevo post
                 </Button>
               </Link>
+              <Link
+                href="/perfil"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <img
+                  src={session.user.image ?? "/tuntun_sahur.jpg"}
+                  alt=""
+                  className="size-8 rounded-full border border-border object-cover"
+                />
+              </Link>
               <LogoutButton />
             </>
           ) : (
