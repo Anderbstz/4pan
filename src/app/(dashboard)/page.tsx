@@ -1,7 +1,12 @@
-import { Navbar, sectionLabels } from "@/components/navbar";
+import { Navbar } from "@/components/navbar";
+import { sectionLabels } from "@/lib/sections";
 import { getPostsBySection } from "@/actions/posts";
 import Link from "next/link";
 import { Section } from "@/generated/prisma/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MessageCircle, Heart } from "lucide-react";
+import { Sidebar } from "./sidebar";
 
 const sections = Object.values(Section) as Section[];
 
@@ -30,76 +35,90 @@ export default async function FeedPage({
   return (
     <>
       <Navbar />
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
-        {/* Section tabs */}
-        <div className="flex gap-1 overflow-x-auto pb-4 mb-2">
-          <Link
-            href="/"
-            className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              !activeSection
-                ? "bg-black text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            Todas
-          </Link>
-          {sections.map((s) => (
-            <Link
-              key={s}
-              href={`/?seccion=${s}`}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                activeSection === s
-                  ? "bg-black text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {sectionLabels[s]}
-            </Link>
-          ))}
-        </div>
+      <div className="flex-1 flex gap-6 max-w-5xl mx-auto w-full px-4 py-6">
+        <Sidebar />
+        <div className="flex-1 min-w-0">
+          {/* Post list */}
+          <div className="space-y-3">
+            {posts.length === 0 && (
+              <p className="text-center text-muted-foreground py-12">
+                Todavía no hay publicaciones en esta sección.
+                {activeSection && (
+                  <> También podés{" "}
+                    <Link href="/" className="underline">
+                      ver todas
+                    </Link>.
+                  </>
+                )}
+              </p>
+            )}
 
-        {/* Post list */}
-        <div className="space-y-3">
-          {posts.length === 0 && (
-            <p className="text-center text-gray-400 py-12">
-              Todavía no hay publicaciones en esta sección.
-              {activeSection && (
-                <> También podés{" "}
-                  <Link href="/" className="underline">
-                    ver todas
-                  </Link>.
-                </>
-              )}
-            </p>
-          )}
+            {posts.map((post) => (
+              <div key={post.id}>
+                <Link
+                  href={`/post/${post.id}`}
+                  className="block transition-colors"
+                >
+                  <Card className="hover:border-foreground/30 transition-colors cursor-pointer">
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <CardTitle className="truncate">{post.title}</CardTitle>
+                          <div className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                            {post.content}
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {sectionLabels[post.section]}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {post.author.displayName}
+                        </span>
+                        <span className="text-xs text-muted-foreground">·</span>
+                        <span className="text-xs text-muted-foreground">
+                          {timeAgo(post.createdAt)}
+                        </span>
+                        <span className="ml-auto flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="inline-flex items-center gap-1"><MessageCircle className="size-3.5" /> {post.commentCount}</span>
+                          <span className="inline-flex items-center gap-1"><Heart className="size-3.5" /> {post.reactionCount}</span>
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
 
-          {posts.map((post) => (
-            <Link
-              key={post.id}
-              href={`/post/${post.id}`}
-              className="block border rounded-xl p-4 hover:border-gray-300 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="font-semibold truncate">{post.title}</h2>
-                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                    {post.content}
-                  </p>
-                </div>
+                {/* Recent comments */}
+                {post.recentComments.length > 0 && (
+                  <div className="ml-6 mt-1 space-y-1">
+                    {post.recentComments.map((c) => (
+                      <div
+                        key={c.id}
+                        className="text-xs text-muted-foreground flex items-center gap-2"
+                      >
+                        <MessageCircle className="size-3 shrink-0" />
+                        <span className="font-medium shrink-0">{c.author.displayName}:</span>
+                        <span className="truncate">{c.content}</span>
+                      </div>
+                    ))}
+                    {post.commentCount > 3 && (
+                      <Link
+                        href={`/post/${post.id}`}
+                        className="text-xs text-primary hover:underline ml-5"
+                      >
+                        Ver los {post.commentCount} comentarios
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-3 mt-3 text-xs text-gray-400">
-                <span>{post.author.displayName}</span>
-                <span>·</span>
-                <span>{timeAgo(post.createdAt)}</span>
-                <span className="ml-auto flex items-center gap-3">
-                  <span>💬 {post.commentCount}</span>
-                  <span>❤️ {post.reactionCount}</span>
-                </span>
-              </div>
-            </Link>
-          ))}
+            ))}
+          </div>
         </div>
-      </main>
+      </div>
     </>
   );
 }

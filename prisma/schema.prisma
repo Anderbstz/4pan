@@ -31,8 +31,9 @@ model User {
   accounts   Account[]
   sessions   Session[]
   posts      Post[]
-  comments   Comment[]
-  reactions  Reaction[]
+  comments      Comment[]
+  commentLikes  CommentLike[]
+  reactions     Reaction[]
   favorites  Favorite[]
   reports    Report[]
 }
@@ -78,6 +79,7 @@ model Post {
   content   String    @db.Text
   section   Section
   isAnonymous Boolean @default(false)
+  ipAddress   String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -105,12 +107,26 @@ model Comment {
   post     Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   parentId String?
-  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies  Comment[] @relation("CommentReplies")
+  parent   Comment?     @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[]    @relation("CommentReplies")
+  likes    CommentLike[]
   reports  Report[]
 
   @@index([postId])
   @@index([parentId])
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId])
 }
 
 model Reaction {
@@ -138,6 +154,18 @@ model Favorite {
 
   @@unique([userId, postId])
   @@index([postId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([email])
 }
 
 model Report {

@@ -1,15 +1,39 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createPost } from "@/actions/posts";
-import { Section } from "@/generated/prisma/client";
-import { sectionLabels } from "@/components/navbar";
+import { sectionLabels } from "@/lib/sections";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
-const sections = Object.values(Section) as Section[];
+const SECTION_VALUES = [
+  "POESIA",
+  "CARTAS_NO_ENVIADAS",
+  "CONFESIONES",
+  "MICRORRELATOS",
+  "DESAHOGO",
+] as const;
 
-export function NewPostForm() {
+const sections = SECTION_VALUES.map((s) => ({ value: s, label: sectionLabels[s] }));
+
+export function NewPostForm({
+  session: _session,
+}: {
+  session: unknown;
+}) {
+  const isLoggedIn = !!_session;
   const router = useRouter();
+  const [anonymous, setAnonymous] = useState(!isLoggedIn);
   const [state, formAction, pending] = useActionState(createPost, undefined);
 
   useEffect(() => {
@@ -22,74 +46,63 @@ export function NewPostForm() {
   return (
     <form action={formAction} className="space-y-4">
       {state?.error && (
-        <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded">
+        <p className="text-sm text-destructive-foreground bg-destructive/10 px-3 py-2 rounded">
           {state.error}
         </p>
       )}
 
-      <div>
-        <label htmlFor="title" className="block text-sm font-medium mb-1">
-          Título
-        </label>
-        <input
-          id="title"
-          name="title"
-          type="text"
-          required
-          maxLength={200}
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"
-        />
+      <div className="space-y-2">
+        <Label htmlFor="title">Título</Label>
+        <Input id="title" name="title" type="text" required maxLength={200} />
       </div>
 
-      <div>
-        <label htmlFor="section" className="block text-sm font-medium mb-1">
-          Sección
-        </label>
-        <select
-          id="section"
-          name="section"
-          required
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10 bg-white"
-        >
-          <option value="">Seleccioná una sección</option>
-          {sections.map((s) => (
-            <option key={s} value={s}>
-              {sectionLabels[s]}
-            </option>
-          ))}
-        </select>
+      <div className="space-y-2">
+        <Label htmlFor="section">Sección</Label>
+        <Select name="section" required>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Seleccioná una sección" />
+          </SelectTrigger>
+          <SelectContent>
+            {sections.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div>
-        <label htmlFor="content" className="block text-sm font-medium mb-1">
-          Contenido
-        </label>
-        <textarea
-          id="content"
-          name="content"
-          required
-          rows={8}
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10 resize-y"
-        />
+      <div className="space-y-2">
+        <Label htmlFor="content">Contenido</Label>
+        <Textarea id="content" name="content" required rows={8} />
       </div>
 
-      <label className="flex items-center gap-2 text-sm cursor-pointer">
+      <Label className="flex items-center gap-2 text-sm cursor-pointer">
         <input
           type="checkbox"
           name="isAnonymous"
           value="true"
-          className="rounded border-gray-300"
+          checked={anonymous}
+          disabled={!isLoggedIn}
+          onChange={(e) => setAnonymous(e.target.checked)}
+          className="rounded border-border"
         />
-        Publicar como anónimo
-      </label>
+        {isLoggedIn
+          ? "Publicar como anónimo"
+          : "Publicando como anónimo (sin cuenta)"}
+      </Label>
+      {!isLoggedIn && (
+        <p className="text-xs text-muted-foreground -mt-2">
+          Si querés publicar con tu nombre,{" "}
+          <a href="/login" className="underline hover:text-primary">
+            iniciá sesión
+          </a>
+        </p>
+      )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full bg-black text-white rounded-lg py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Publicando..." : "Publicar"}
-      </button>
+      </Button>
     </form>
   );
 }

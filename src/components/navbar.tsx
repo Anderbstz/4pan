@@ -1,47 +1,34 @@
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import Link from "next/link";
-
-const sectionLabels: Record<string, string> = {
-  POESIA: "Poesía",
-  CARTAS_NO_ENVIADAS: "Cartas no enviadas",
-  CONFESIONES: "Confesiones",
-  MICRORRELATOS: "Microrrelatos",
-  DESAHOGO: "Desahogo",
-};
+import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/logout-button";
+import { sectionLabels } from "@/lib/sections";
 
 export async function Navbar() {
   const session = await auth();
 
   return (
-    <header className="border-b">
-      <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="font-bold text-lg">
+    <header className="border-border border-b">
+      <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="font-bold text-2xl tracking-tight">
           migaforos
         </Link>
 
-        <nav className="flex items-center gap-4 text-sm">
+        <nav className="flex items-center gap-4">
           {session?.user ? (
             <>
-              <Link
-                href="/nuevo"
-                className="bg-black text-white px-3 py-1.5 rounded-lg text-sm hover:bg-gray-800"
-              >
-                Nuevo post
+              <Link href="/nuevo">
+                <Button variant="default" size="lg" className="text-base">
+                  + Nuevo post
+                </Button>
               </Link>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut();
-                }}
-              >
-                <button type="submit" className="text-gray-500 hover:text-black">
-                  Cerrar sesión
-                </button>
-              </form>
+              <LogoutButton />
             </>
           ) : (
-            <Link href="/login" className="text-gray-500 hover:text-black">
-              Iniciar sesión
+            <Link href="/login">
+              <Button variant="ghost" size="lg" className="text-base">
+                Iniciar sesión
+              </Button>
             </Link>
           )}
         </nav>
@@ -49,5 +36,3 @@ export async function Navbar() {
     </header>
   );
 }
-
-export { sectionLabels };

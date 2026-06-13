@@ -37,16 +37,31 @@ export async function toggleReaction(postId: string, emoji: string) {
 }
 
 export async function getReactions(postId: string) {
+  const session = await auth();
+
   const reactions = await prisma.reaction.groupBy({
     by: ["emoji"],
     where: { postId },
     _count: true,
   });
 
-  return reactions.map((r) => ({
-    emoji: r.emoji,
-    count: r._count,
-  }));
+  // Get the current user's reactions for this post
+  const userReactionEmojis: string[] = [];
+  if (session?.user?.id) {
+    const userReactions = await prisma.reaction.findMany({
+      where: { postId, userId: session.user.id },
+      select: { emoji: true },
+    });
+    userReactionEmojis.push(...userReactions.map((r) => r.emoji));
+  }
+
+  return {
+    counts: reactions.map((r) => ({
+      emoji: r.emoji,
+      count: r._count,
+    })),
+    userReactions: userReactionEmojis,
+  };
 }
 
 export async function toggleFavorite(postId: string) {

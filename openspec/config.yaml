@@ -1,0 +1,51 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: Next.js 16.2.7, React 19.2.4, TypeScript 5 (strict), Tailwind CSS v4,
+    Prisma 7.8.0 (Postgres/Neon w/ driver adapter), NextAuth v5 beta (Credentials + JWT),
+    ESLint 9, PostCSS, shadcn v4
+  Architecture: App Router (route groups (auth), (dashboard)), Server Actions in
+    src/actions/, Prisma generated client at src/generated/prisma/, Auth in src/lib/auth.ts,
+    SessionProvider wrapper in layout, JWT session strategy
+  Testing: No test runner detected
+  Style: Tailwind v4 CSS with @tailwindcss/postcss, Geist Sans/Mono fonts,
+    @/ path alias for src/, CSS-based styling (no CSS-in-JS), Spanish UI copy
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: "npx tsc --noEmit && eslint ."
+    build_command: "npm run build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: false
+  reason: "No test runner detected. No vitest, jest, playwright, or cypress installed."
+  runner: null
+  layers:
+    unit: false
+    integration: false
+    e2e: false
+  coverage: false
+  quality:
+    linter: "eslint"
+    type_checker: "tsc --noEmit"
+    formatter: null
+  detected: "2026-06-08"

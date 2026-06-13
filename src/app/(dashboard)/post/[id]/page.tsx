@@ -1,11 +1,16 @@
-import { Navbar, sectionLabels } from "@/components/navbar";
+import { Navbar } from "@/components/navbar";
+import { sectionLabels } from "@/lib/sections";
 import { getPostById } from "@/actions/posts";
 import { getComments } from "@/actions/comments";
 import { getReactions } from "@/actions/reactions";
 import { CommentForm } from "./comment-form";
+import { CommentLikeButton } from "./comment-like-button";
+import { ReplyForm } from "./reply-form";
 import { ReactionButtons } from "./reaction-buttons";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 function timeAgo(date: Date) {
   const diff = Date.now() - date.getTime();
@@ -23,7 +28,7 @@ export default async function PostPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [post, comments, reactions] = await Promise.all([
+  const [post, comments, { counts: reactions, userReactions }] = await Promise.all([
     getPostById(id),
     getComments(id),
     getReactions(id),
@@ -34,34 +39,34 @@ export default async function PostPage({
   return (
     <>
       <Navbar />
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
         <Link
           href="/"
-          className="text-sm text-gray-400 hover:text-black mb-4 inline-block"
+          className="text-sm text-muted-foreground hover:text-foreground mb-4 inline-block"
         >
           ← Volver
         </Link>
 
-        <article className="border rounded-xl p-6">
-          <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
-            <span className="bg-gray-100 px-2 py-0.5 rounded-full text-gray-600">
-              {sectionLabels[post.section]}
-            </span>
-            <span>·</span>
-            <span>{post.author.displayName}</span>
-            <span>·</span>
-            <span>{timeAgo(post.createdAt)}</span>
-          </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+              <Badge variant="secondary">{sectionLabels[post.section]}</Badge>
+              <span>·</span>
+              <span>{post.author.displayName}</span>
+              <span>·</span>
+              <span>{timeAgo(post.createdAt)}</span>
+            </div>
 
-          <h1 className="text-xl font-bold mb-4">{post.title}</h1>
-          <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {post.content}
-          </div>
-        </article>
+            <h1 className="text-xl font-bold mb-4">{post.title}</h1>
+            <div className="text-foreground/80 whitespace-pre-wrap leading-relaxed">
+              {post.content}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Reactions */}
         <div className="mt-4">
-          <ReactionButtons postId={post.id} initialReactions={reactions} />
+          <ReactionButtons postId={post.id} initialReactions={reactions} userReactions={userReactions} />
         </div>
 
         {/* Comments */}
@@ -74,40 +79,58 @@ export default async function PostPage({
 
           <div className="space-y-4 mt-6">
             {comments.length === 0 && (
-              <p className="text-gray-400 text-sm text-center py-8">
+              <p className="text-muted-foreground text-sm text-center py-8">
                 Sin comentarios todavía. Sé el primero en responder.
               </p>
             )}
 
             {comments.map((comment) => (
-              <div key={comment.id} className="border rounded-lg p-4">
-                <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
-                  <span className="font-medium text-gray-600">
-                    {comment.author.displayName}
-                  </span>
-                  <span>·</span>
-                  <span>{timeAgo(comment.createdAt)}</span>
-                </div>
-                <p className="text-sm">{comment.content}</p>
-
-                {/* Replies */}
-                {comment.replies.length > 0 && (
-                  <div className="ml-6 mt-3 space-y-3 border-l-2 pl-4">
-                    {comment.replies.map((reply) => (
-                      <div key={reply.id}>
-                        <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-                          <span className="font-medium text-gray-600">
-                            {reply.author.displayName}
-                          </span>
-                          <span>·</span>
-                          <span>{timeAgo(reply.createdAt)}</span>
-                        </div>
-                        <p className="text-sm">{reply.content}</p>
-                      </div>
-                    ))}
+              <Card key={comment.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                    <span className="font-medium text-foreground/80">
+                      {comment.author.displayName}
+                    </span>
+                    <span>·</span>
+                    <span>{timeAgo(comment.createdAt)}</span>
                   </div>
-                )}
-              </div>
+                  <p className="text-sm">{comment.content}</p>
+
+                  <div className="flex items-center gap-3 mt-2">
+                    <CommentLikeButton
+                      commentId={comment.id}
+                      initialLiked={comment.isLiked}
+                      initialCount={comment.likeCount}
+                    />
+                    <ReplyForm postId={post.id} parentId={comment.id} />
+                  </div>
+
+                  {/* Replies */}
+                  {comment.replies.length > 0 && (
+                    <div className="ml-6 mt-3 space-y-3 border-l-2 border-muted pl-4">
+                      {comment.replies.map((reply) => (
+                        <div key={reply.id}>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                            <span className="font-medium text-foreground/80">
+                              {reply.author.displayName}
+                            </span>
+                            <span>·</span>
+                            <span>{timeAgo(reply.createdAt)}</span>
+                          </div>
+                          <p className="text-sm">{reply.content}</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <CommentLikeButton
+                              commentId={reply.id}
+                              initialLiked={reply.isLiked}
+                              initialCount={reply.likeCount}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             ))}
           </div>
         </section>
