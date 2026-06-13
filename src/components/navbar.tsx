@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
+import { Avatar } from "@/components/avatar";
 import { sectionLabels } from "@/lib/sections";
 
 export async function Navbar() {
@@ -22,14 +23,11 @@ export async function Navbar() {
                   + Nuevo post
                 </Button>
               </Link>
-              <Link
-                href="/perfil"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <img
-                  src={session.user.image ?? "/tuntun_sahur.jpg"}
-                  alt=""
-                  className="size-8 rounded-full border border-border object-cover"
+              <Link href="/perfil">
+                <Avatar
+                  src={session.user.image}
+                  name={session.user.name}
+                  size="sm"
                 />
               </Link>
               <LogoutButton />

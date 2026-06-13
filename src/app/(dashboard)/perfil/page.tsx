@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ProfileForm } from "./form";
+import { Avatar } from "@/components/avatar";
 import { getUserProfile } from "@/actions/profile";
-import Link from "next/link";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -23,12 +23,12 @@ export default async function ProfilePage() {
           {/* Avatar + info */}
           <Card>
             <CardContent className="p-6 flex flex-col items-center text-center">
-              <img
-                src={profile.image ?? "/tuntun_sahur.jpg"}
-                alt={profile.displayName ?? profile.username ?? "Avatar"}
-                className="size-28 rounded-full object-cover border-4 border-border mb-4"
+              <Avatar
+                src={profile.image}
+                name={profile.displayName ?? profile.username}
+                size="lg"
               />
-              <h2 className="text-xl font-bold">{profile.displayName ?? profile.username}</h2>
+              <h2 className="text-xl font-bold mt-4">{profile.displayName ?? profile.username}</h2>
               <p className="text-sm text-muted-foreground">@{profile.username}</p>
               <p className="text-sm text-muted-foreground mt-1">{profile.email}</p>
 
