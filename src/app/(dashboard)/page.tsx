@@ -93,25 +93,20 @@ export default async function FeedPage({
 
                 {/* Recent comments */}
                 {post.recentComments.length > 0 && (
-                  <>
-                    <div className="flex items-center gap-2 ml-8 mt-1 mb-1">
-                      <svg width="20" height="28" viewBox="0 0 20 28" fill="none" className="text-border">
-                        <line x1="10" y1="0" x2="10" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                        <polyline points="4,12 10,18 16,12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span className="text-xs text-muted-foreground">Comentarios</span>
-                    </div>
-                    <div className="ml-11 pb-2 space-y-1">
+                  <div className="ml-4 mt-2 pb-2 space-y-1">
                     {post.recentComments.map((c) => (
-                      <div
-                        key={c.id}
-                        className="text-xs bg-card border border-border rounded-lg px-3 py-2 flex items-start gap-2"
-                      >
-                        <span className="font-medium text-foreground/80 shrink-0">{c.author.displayName}:</span>
-                        <span className="text-muted-foreground line-clamp-1 min-w-0">{c.content}</span>
-                        {c.likeCount > 0 && (
-                          <span className="text-muted-foreground shrink-0 ml-auto">♥ {c.likeCount}</span>
-                        )}
+                      <div key={c.id} className="flex items-start gap-2">
+                        <svg width="16" height="22" viewBox="0 0 16 22" fill="none" className="text-border shrink-0 mt-1">
+                          <path d="M2 2v9a3 3 0 0 0 3 3h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="m11 11 4 3-4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <div className="text-xs bg-card border border-border rounded-lg px-3 py-2 flex items-start gap-2 flex-1 min-w-0">
+                          <span className="font-medium text-foreground/80 shrink-0">{c.author.displayName}:</span>
+                          <span className="text-muted-foreground line-clamp-1 min-w-0">{c.content}</span>
+                          {c.likeCount > 0 && (
+                            <span className="text-muted-foreground shrink-0 ml-auto">♥ {c.likeCount}</span>
+                          )}
+                        </div>
                       </div>
                     ))}
                     {post.commentCount > 3 && (
@@ -123,7 +118,7 @@ export default async function FeedPage({
                       </Link>
                     )}
                   </div>
-                  </>)}
+                )}
               </div>
             ))}
           </div>

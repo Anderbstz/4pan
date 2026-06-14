@@ -107,23 +107,29 @@ export default async function PostPage({
 
                   {/* Replies */}
                   {comment.replies.length > 0 && (
-                    <div className="ml-6 mt-3 space-y-3 border-l-2 border-muted pl-4">
+                    <div className="ml-2 mt-3 space-y-3">
                       {comment.replies.map((reply) => (
-                        <div key={reply.id}>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-                            <span className="font-medium text-foreground/80">
-                              {reply.author.displayName}
-                            </span>
-                            <span>·</span>
-                            <span>{timeAgo(reply.createdAt)}</span>
-                          </div>
-                          <p className="text-sm">{reply.content}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <CommentLikeButton
-                              commentId={reply.id}
-                              initialLiked={reply.isLiked}
-                              initialCount={reply.likeCount}
-                            />
+                        <div key={reply.id} className="flex items-start gap-2">
+                          <svg width="24" height="28" viewBox="0 0 24 28" fill="none" className="text-border shrink-0 mt-0">
+                            <path d="M2 2v11a3 3 0 0 0 3 3h15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            <path d="m17 13 4 3-4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                              <span className="font-medium text-foreground/80">
+                                {reply.author.displayName}
+                              </span>
+                              <span>·</span>
+                              <span>{timeAgo(reply.createdAt)}</span>
+                            </div>
+                            <p className="text-sm">{reply.content}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <CommentLikeButton
+                                commentId={reply.id}
+                                initialLiked={reply.isLiked}
+                                initialCount={reply.likeCount}
+                              />
+                            </div>
                           </div>
                         </div>
                       ))}
