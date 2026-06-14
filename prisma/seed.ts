@@ -202,29 +202,74 @@ Gracias por existir, migaforos.`,
     console.log(`  ✓ Reactions added to "${firstPost.title}"`);
   }
 
-  // Add a couple of comments
-  const thirdPost = await prisma.post.findFirst({
+  // Add many comments to the most popular post
+  const popularPost = await prisma.post.findFirst({
+    where: { title: "Jueves a las 3am" },
+    orderBy: { createdAt: "asc" },
+  });
+  if (popularPost) {
+    const commentData = [
+      // Top-level comments
+      { content: "Me identifiqué tanto con esto que me dieron ganas de llorar. Ojalá estés mejor, abrazo.", replies: ["Gracias, hermano. Uno hace lo que puede.", "Yo también pasé por algo similar. No estás solo."] },
+      { content: "El after de una ruptura es lo peor. Pero pasa, te juro que pasa.", replies: ["¿Cuándo? Pregunta seria.", "Cuando menos lo esperás. Un día dejás de contar los días."] },
+      { content: "Le mandé esto a mi ex sin contexto. Malísima idea.", replies: ["Y... ¿qué pasó?", "No pasó nada. Pero me sirvió a mí.", "A veces hay que soltar aunque duela."] },
+      { content: "Banco mucho este espacio. Es como un abrazo colectivo.", replies: ["Tal cual. Acá todos nos entendemos sin juzgar."] },
+      { content: "3 semanas es poco. Yo llevo 8 meses y todavía la extraño.", replies: ["8 meses y 3 semanas acá. No hay fecha para estas cosas.", "Fuerza loco, cada uno tiene su tiempo."] },
+      { content: "Escribir esto debe haber sido terapéutico. Gracias por compartirlo.", replies: [] },
+      { content: "Me hizo acordar a cuando terminé con mi primera novia. Casi 10 años y todavía duele.", replies: ["Las primeras no se olvidan nunca.", "10 años y todavía? Uh, no me desesperes."] },
+      { content: "Te entiendo perfectamente. Estoy en la misma.", replies: ["Abrazo virtual, hermano.", "Gracias, se hace más llevadero saber que no soy el único."] },
+      { content: "La almohada guarda todos los secretos.", replies: [] },
+      { content: "Nunca pensé que un texto random de internet me iba a pegar tan fuerte.", replies: ["Bienvenido a migaforos jaja"] },
+    ];
+
+    for (const [i, c] of commentData.entries()) {
+      const comment = await prisma.comment.create({
+        data: {
+          content: c.content,
+          authorId: user.id,
+          postId: popularPost.id,
+          createdAt: new Date(Date.now() - (commentData.length - i) * 60000 * 30), // stagger times
+        },
+      });
+
+      // Add likes to some comments
+      for (let l = 0; l < Math.floor(Math.random() * 8) + 1; l++) {
+        await prisma.commentLike.create({ data: { commentId: comment.id, userId: user.id } }).catch(() => {});
+      }
+
+      // Add replies
+      for (const reply of c.replies) {
+        const r = await prisma.comment.create({
+          data: {
+            content: reply,
+            authorId: user.id,
+            postId: popularPost.id,
+            parentId: comment.id,
+            createdAt: new Date(Date.now() - (commentData.length - i) * 60000 * 25),
+          },
+        });
+        // Add some likes to replies
+        for (let l = 0; l < Math.floor(Math.random() * 3); l++) {
+          await prisma.commentLike.create({ data: { commentId: r.id, userId: user.id } }).catch(() => {});
+        }
+      }
+    }
+    console.log(`  ✓ 20+ comments added to "${popularPost.title}"`);
+  }
+
+  // Also add a few comments to the confession post
+  const confessionPost = await prisma.post.findFirst({
     where: { title: "Le debía una confesión a mi viejo" },
     orderBy: { createdAt: "asc" },
   });
-  if (thirdPost) {
-    const comment = await prisma.comment.create({
-      data: {
-        content: "Me llegó al alma, hermano. Gracias por compartir esto.",
-        authorId: user.id,
-        postId: thirdPost.id,
-      },
+  if (confessionPost) {
+    const c1 = await prisma.comment.create({
+      data: { content: "Me llegó al alma, hermano. Gracias por compartir esto.", authorId: user.id, postId: confessionPost.id },
     });
-
     await prisma.comment.create({
-      data: {
-        content: "A veces decirlo aunque sea acá ya es un montón. Fuerza.",
-        authorId: user.id,
-        postId: thirdPost.id,
-        parentId: comment.id,
-      },
+      data: { content: "A veces decirlo aunque sea acá ya es un montón. Fuerza.", authorId: user.id, postId: confessionPost.id, parentId: c1.id },
     });
-    console.log(`  ✓ Comments added`);
+    console.log(`  ✓ Comments added to "${confessionPost.title}"`);
   }
 
   console.log("\n✅ Seed completado! Datos de prueba:");

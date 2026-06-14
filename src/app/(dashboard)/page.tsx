@@ -93,23 +93,22 @@ export default async function FeedPage({
 
                 {/* Recent comments */}
                 {post.recentComments.length > 0 && (
-                  <div className="ml-6 mt-1 space-y-1">
+                  <div className="ml-4 mt-2 pb-3 border-l-2 border-muted pl-4 space-y-2">
                     {post.recentComments.map((c) => (
-                      <div
-                        key={c.id}
-                        className="text-xs text-muted-foreground flex items-center gap-2"
-                      >
-                        <MessageCircle className="size-3 shrink-0" />
-                        <span className="font-medium shrink-0">{c.author.displayName}:</span>
-                        <span className="truncate">{c.content}</span>
+                      <div key={c.id} className="text-xs">
+                        <span className="font-medium text-foreground/80">{c.author.displayName}</span>
+                        <span className="text-muted-foreground ml-1 line-clamp-1">{c.content}</span>
+                        {c.likeCount > 0 && (
+                          <span className="text-muted-foreground ml-2 shrink-0">♥ {c.likeCount}</span>
+                        )}
                       </div>
                     ))}
                     {post.commentCount > 3 && (
                       <Link
                         href={`/post/${post.id}`}
-                        className="text-xs text-primary hover:underline ml-5"
+                        className="text-xs text-primary hover:underline font-medium"
                       >
-                        Ver los {post.commentCount} comentarios
+                        Ver los {post.commentCount} comentarios →
                       </Link>
                     )}
                   </div>
