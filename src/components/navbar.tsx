@@ -11,17 +11,17 @@ export async function Navbar() {
   return (
     <header className="border-border border-b sticky top-0 bg-background z-50">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/4pan-banner.png" alt="4pan" className="h-10 w-auto" />
-          <span className="font-bold text-2xl tracking-tight text-foreground">4pan</span>
+        <Link href="/" className="flex items-center gap-1.5 sm:gap-2">
+          <img src="/4pan-banner.png" alt="4pan" className="h-8 sm:h-10 w-auto" />
+          <span className="font-bold text-xl sm:text-2xl tracking-tight text-foreground">4pan</span>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-2 sm:gap-4">
           {session?.user ? (
             <>
               <Link href="/nuevo">
-                <Button variant="default" size="lg" className="text-base">
-                  + Nuevo post
+                <Button variant="default" size="sm" className="text-xs sm:text-sm sm:h-9">
+                  + Nuevo
                 </Button>
               </Link>
               <Link href="/perfil">
@@ -35,7 +35,7 @@ export async function Navbar() {
             </>
           ) : (
             <Link href="/login">
-              <Button variant="ghost" size="lg" className="text-base">
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm sm:h-9">
                 Iniciar sesión
               </Button>
             </Link>

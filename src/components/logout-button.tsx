@@ -6,8 +6,9 @@ import { logoutAction } from "@/actions/auth";
 export function LogoutButton() {
   return (
     <form action={logoutAction}>
-      <Button type="submit" variant="ghost" size="lg" className="text-base">
-        Cerrar sesión
+      <Button type="submit" variant="ghost" size="sm" className="text-xs sm:text-sm sm:h-9">
+        <span className="hidden sm:inline">Cerrar sesión</span>
+        <span className="sm:hidden">Salir</span>
       </Button>
     </form>
   );

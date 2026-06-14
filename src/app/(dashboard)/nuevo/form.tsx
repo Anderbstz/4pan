@@ -87,6 +87,7 @@ export function NewPostForm({
           onChange={(e) => setAnonymous(e.target.checked)}
           className="rounded border-border"
         />
+        {!isLoggedIn && <input type="hidden" name="isAnonymous" value="true" />}
         {isLoggedIn
           ? "Publicar como anónimo"
           : "Publicando como anónimo (sin cuenta)"}

@@ -26,7 +26,7 @@ export function Sidebar() {
   const activeSection = searchParams.get("seccion") ?? null;
 
   return (
-    <aside className="w-52 shrink-0">
+    <aside className="hidden md:block w-52 shrink-0">
       <nav className="space-y-1 sticky top-20">
         <Link
           href="/"
