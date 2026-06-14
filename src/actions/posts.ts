@@ -96,6 +96,7 @@ export async function createPost(
 }
 
 export async function getPostsBySection(section?: Section, page = 1) {
+  const session = await auth();
   const itemsPerPage = 20;
 
   const posts = await prisma.post.findMany({
@@ -123,7 +124,7 @@ export async function getPostsBySection(section?: Section, page = 1) {
     ? await prisma.comment.findMany({
         where: { postId: { in: postIds }, parentId: null },
         orderBy: { createdAt: "desc" },
-        take: 30, // max 30 total comments across all posts
+        take: 30,
         include: {
           author: {
             select: { id: true, username: true, displayName: true },
@@ -133,7 +134,20 @@ export async function getPostsBySection(section?: Section, page = 1) {
       })
     : [];
 
-  // Sort by like count DESC for each post, take 3 per post
+  // Get which comments the current user has liked
+  const userLikedIds: string[] = [];
+  if (session?.user?.id && allComments.length > 0) {
+    const likes = await prisma.commentLike.findMany({
+      where: {
+        commentId: { in: allComments.map((c) => c.id) },
+        userId: session.user.id,
+      },
+      select: { commentId: true },
+    });
+    userLikedIds.push(...likes.map((l) => l.commentId));
+  }
+
+  // Sort by like count DESC, take 3 per post
   allComments.sort((a, b) => b._count.likes - a._count.likes || b.createdAt.getTime() - a.createdAt.getTime());
   const commentsByPost = new Map<string, typeof allComments>();
   for (const comment of allComments) {
@@ -144,7 +158,6 @@ export async function getPostsBySection(section?: Section, page = 1) {
     }
   }
 
-  // Combine count with findMany result length (approximate)
   const total = posts.length < itemsPerPage
     ? (page - 1) * itemsPerPage + posts.length
     : await prisma.post.count({
@@ -172,6 +185,7 @@ export async function getPostsBySection(section?: Section, page = 1) {
           content: c.content,
           createdAt: c.createdAt,
           likeCount: c._count.likes,
+          isLiked: userLikedIds.includes(c.id),
           author: c.author
             ? { displayName: c.author.displayName ?? c.author.username }
             : { displayName: "Anónimo" },

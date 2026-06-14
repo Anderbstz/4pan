@@ -79,7 +79,7 @@ export function PostContent({
       </div>
 
       {/* Comments */}
-      <section className="mt-8">
+      <section id="comments" className="mt-8">
         <h2 className="font-semibold mb-4">
           Comentarios ({post.commentCount})
         </h2>

@@ -11,8 +11,8 @@ export async function Navbar() {
   return (
     <header className="border-border border-b">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-2xl tracking-tight">
-          migaforos
+        <Link href="/">
+          <img src="/4pan-banner.png" alt="4pan" className="h-10 w-auto" />
         </Link>
 
         <nav className="flex items-center gap-4">

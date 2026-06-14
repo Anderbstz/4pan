@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Migaforos — expresión anónima",
+  title: "4pan — expresión anónima",
   description: "Compartí poemas, cartas no enviadas, confesiones y microrrelatos en un espacio seguro y anónimo.",
+  icons: {
+    icon: "/4pan.ico",
+  },
 };
 
 export default function RootLayout({

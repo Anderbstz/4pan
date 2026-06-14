@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Heart } from "lucide-react";
+import { CommentLikeButton } from "@/app/(dashboard)/post/[id]/comment-like-button";
 import { timeAgo } from "@/lib/time-ago";
 
 type Post = {
@@ -19,6 +20,7 @@ type Post = {
     content: string;
     author: { displayName: string | null };
     likeCount: number;
+    isLiked: boolean;
   }[];
 };
 
@@ -47,7 +49,7 @@ export function FeedContent({
       {posts.map((post) => (
         <div key={post.id}>
           <Link
-            href={`/post/${post.id}`}
+            href={`/post/${post.id}${post.recentComments.length > 0 ? "#comments" : ""}`}
             className="block transition-colors"
           >
             <Card className="hover:border-foreground/30 transition-colors cursor-pointer">
@@ -91,18 +93,22 @@ export function FeedContent({
                     <path d="M2 2v9a3 3 0 0 0 3 3h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     <path d="m11 11 4 3-4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <div className="text-xs bg-card border border-border rounded-lg px-3 py-2 flex items-start gap-2 flex-1 min-w-0">
-                    <span className="font-medium text-foreground/80 shrink-0">{c.author.displayName ?? "Anónimo"}:</span>
-                    <span className="text-muted-foreground line-clamp-1 min-w-0">{c.content}</span>
-                    {c.likeCount > 0 && (
-                      <span className="text-muted-foreground shrink-0 ml-auto">♥ {c.likeCount}</span>
-                    )}
+                  <div className="text-xs bg-card border border-border rounded-lg px-3 py-2 flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-foreground/80 shrink-0">{c.author.displayName ?? "Anónimo"}:</span>
+                      <CommentLikeButton
+                        commentId={c.id}
+                        initialLiked={c.isLiked}
+                        initialCount={c.likeCount}
+                      />
+                    </div>
+                    <span className="text-muted-foreground line-clamp-1">{c.content}</span>
                   </div>
                 </div>
               ))}
               {post.commentCount > 3 && (
                 <Link
-                  href={`/post/${post.id}`}
+                  href={`/post/${post.id}#comments`}
                   className="text-xs text-primary hover:underline font-medium inline-block mt-1 ml-1"
                 >
                   Ver los {post.commentCount} comentarios →
