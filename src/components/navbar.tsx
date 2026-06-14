@@ -9,10 +9,11 @@ export async function Navbar() {
   const session = await auth();
 
   return (
-    <header className="border-border border-b">
+    <header className="border-border border-b sticky top-0 bg-background z-50">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/">
+        <Link href="/" className="flex items-center gap-2">
           <img src="/4pan-banner.png" alt="4pan" className="h-10 w-auto" />
+          <span className="font-bold text-2xl tracking-tight text-foreground">4pan</span>
         </Link>
 
         <nav className="flex items-center gap-4">
