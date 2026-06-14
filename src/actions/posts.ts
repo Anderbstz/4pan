@@ -117,11 +117,13 @@ export async function getPostsBySection(section?: Section, page = 1) {
     },
   });
 
-  // Batch fetch comments per post (sorted by likes, top 3)
+  // Batch fetch top comments per post (limit total to avoid slow queries)
   const postIds = posts.map((p) => p.id);
   const allComments = postIds.length > 0
     ? await prisma.comment.findMany({
         where: { postId: { in: postIds }, parentId: null },
+        orderBy: { createdAt: "desc" },
+        take: 30, // max 30 total comments across all posts
         include: {
           author: {
             select: { id: true, username: true, displayName: true },
@@ -131,10 +133,8 @@ export async function getPostsBySection(section?: Section, page = 1) {
       })
     : [];
 
-  // Sort by like count DESC, then by createdAt DESC, take 3 per post
+  // Sort by like count DESC for each post, take 3 per post
   allComments.sort((a, b) => b._count.likes - a._count.likes || b.createdAt.getTime() - a.createdAt.getTime());
-
-  // Group comments by post, take 3 per post
   const commentsByPost = new Map<string, typeof allComments>();
   for (const comment of allComments) {
     const list = commentsByPost.get(comment.postId) ?? [];
@@ -144,9 +144,12 @@ export async function getPostsBySection(section?: Section, page = 1) {
     }
   }
 
-  const total = await prisma.post.count({
-    where: section ? { section } : undefined,
-  });
+  // Combine count with findMany result length (approximate)
+  const total = posts.length < itemsPerPage
+    ? (page - 1) * itemsPerPage + posts.length
+    : await prisma.post.count({
+        where: section ? { section } : undefined,
+      });
 
   return {
     posts: posts.map((p) => {

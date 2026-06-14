@@ -112,7 +112,7 @@ model Comment {
   likes    CommentLike[]
   reports  Report[]
 
-  @@index([postId])
+  @@index([postId, createdAt])
   @@index([parentId])
 }
 
