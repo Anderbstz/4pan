@@ -95,8 +95,9 @@ export default async function FeedPage({
                 {post.recentComments.length > 0 && (
                   <>
                     <div className="flex items-center gap-2 ml-8 mt-1 mb-1">
-                      <svg width="20" height="16" viewBox="0 0 20 16" fill="none" className="text-border">
-                        <path d="M19 15L5 15C2.79086 15 1 13.2091 1 11L1 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <svg width="20" height="28" viewBox="0 0 20 28" fill="none" className="text-border">
+                        <line x1="10" y1="0" x2="10" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <polyline points="4,12 10,18 16,12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                       <span className="text-xs text-muted-foreground">Comentarios</span>
                     </div>
