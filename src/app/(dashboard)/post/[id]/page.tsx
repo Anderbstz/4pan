@@ -129,6 +129,7 @@ export default async function PostPage({
                                 initialLiked={reply.isLiked}
                                 initialCount={reply.likeCount}
                               />
+                              <ReplyForm postId={post.id} parentId={reply.id} />
                             </div>
                           </div>
                         </div>
