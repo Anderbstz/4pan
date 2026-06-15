@@ -75,7 +75,7 @@ model VerificationToken {
 
 model Post {
   id        String    @id @default(cuid())
-  title     String    @db.VarChar(200)
+  title     String    @db.VarChar(50)
   content   String    @db.Text
   section   Section
   isAnonymous Boolean @default(false)

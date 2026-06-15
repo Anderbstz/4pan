@@ -40,12 +40,13 @@ function validate(formData: FormData): Errors {
   const content = (formData.get("content") as string)?.trim();
 
   if (!title) errors.title = "El título es obligatorio";
-  else if (title.length > 200) errors.title = "El título no puede superar los 200 caracteres";
+  else if (title.length > 50) errors.title = "El título no puede superar los 50 caracteres";
 
   if (!section) errors.section = "Seleccioná una sección";
 
   if (!content) errors.content = "El contenido es obligatorio";
   else if (content.length < 10) errors.content = "El contenido debe tener al menos 10 caracteres";
+  else if (content.length > 7500) errors.content = "El contenido no puede superar los 7500 caracteres";
 
   return errors;
 }
@@ -98,7 +99,7 @@ export function NewPostForm({
 
       <div className="space-y-2">
         <Label htmlFor="title">Título</Label>
-        <Input id="title" name="title" type="text" maxLength={200} />
+        <Input id="title" name="title" type="text" maxLength={50} />
         {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
       </div>
 

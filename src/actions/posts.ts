@@ -34,8 +34,11 @@ export async function createPost(
   if (!title || !content || !section) {
     return { error: "Faltan campos obligatorios" };
   }
-  if (title.length > 200) {
-    return { error: "El título no puede superar los 200 caracteres" };
+  if (title.length > 50) {
+    return { error: "El título no puede superar los 50 caracteres" };
+  }
+  if (content.length > 7500) {
+    return { error: "El contenido no puede superar los 7500 caracteres" };
   }
   if (!Object.values(Section).includes(section)) {
     return { error: "Sección inválida" };
