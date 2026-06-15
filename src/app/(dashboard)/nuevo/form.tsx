@@ -70,6 +70,7 @@ export function NewPostForm({
       const t = setTimeout(() => { router.push("/"); router.refresh(); }, 800);
       return () => clearTimeout(t);
     }
+    if (state?.error) toast.error(state.error);
   }, [state, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -78,7 +79,10 @@ export function NewPostForm({
     const data = new FormData(form);
     const v = validate(data);
     setErrors(v);
-    if (Object.keys(v).length > 0) return;
+    if (Object.keys(v).length > 0) {
+      toast.error("Completá todos los campos correctamente");
+      return;
+    }
     // Use the form action directly
     const formData = new FormData(form);
     formAction(formData);

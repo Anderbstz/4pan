@@ -36,15 +36,7 @@ async function loginUser(_prev: LoginState, formData: FormData): Promise<LoginSt
 export function LoginForm() {
   const router = useRouter();
   const [errors, setErrors] = useState<Errors>({});
-  const [state, formAction, pending] = useActionState<LoginState, FormData>(
-    async (prev, formData) => {
-      const v = validate(formData);
-      setErrors(v);
-      if (Object.keys(v).length > 0) return prev;
-      return loginUser(prev, formData);
-    },
-    undefined,
-  );
+  const [state, formAction, pending] = useActionState(loginUser, undefined);
 
   useEffect(() => {
     if (state?.success) {
@@ -52,10 +44,23 @@ export function LoginForm() {
       const t = setTimeout(() => { router.push("/"); router.refresh(); }, 800);
       return () => clearTimeout(t);
     }
+    if (state?.error) toast.error(state.error);
   }, [state, router]);
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const v = validate(data);
+    setErrors(v);
+    if (Object.keys(v).length > 0) {
+      toast.error("Completá todos los campos correctamente");
+      return;
+    }
+    formAction(data);
+  }
+
   return (
-    <form action={formAction} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       {state?.error && (
         <p className="text-sm text-destructive-foreground bg-destructive/10 px-3 py-2 rounded">{state.error}</p>
       )}
