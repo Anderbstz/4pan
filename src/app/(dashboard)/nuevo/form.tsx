@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState, useRef } from "react";
+import { toast } from "sonner";
 import { createPost, type CreatePostState } from "@/actions/posts";
 import { sectionLabels } from "@/lib/sections";
 import { useRouter } from "next/navigation";
@@ -71,6 +72,7 @@ export function NewPostForm({
 
   useEffect(() => {
     if (state?.success) {
+      toast.success("Publicación creada");
       router.push("/");
       router.refresh();
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -46,7 +47,7 @@ export function LoginForm() {
   );
 
   useEffect(() => {
-    if (state?.success) { router.push("/"); router.refresh(); }
+    if (state?.success) { toast.success("Sesión iniciada"); router.push("/"); router.refresh(); }
   }, [state, router]);
 
   return (

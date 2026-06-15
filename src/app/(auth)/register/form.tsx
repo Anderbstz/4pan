@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useEffect } from "react";
+import { toast } from "sonner";
 import { registerUser, type RegisterState } from "@/actions/register";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -44,7 +45,7 @@ export function RegisterForm() {
   );
 
   useEffect(() => {
-    if (state?.success) { router.push("/"); router.refresh(); }
+    if (state?.success) { toast.success("Cuenta creada"); router.push("/"); router.refresh(); }
   }, [state, router]);
 
   return (
