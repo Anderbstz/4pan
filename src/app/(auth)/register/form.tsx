@@ -56,12 +56,12 @@ export function RegisterForm() {
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" />
-        {errors.email && <p className="text-xs text-destructive-foreground">{errors.email}</p>}
+        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="username">Usuario</Label>
         <Input id="username" name="username" type="text" />
-        {errors.username && <p className="text-xs text-destructive-foreground">{errors.username}</p>}
+        {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="displayName">Nombre público (opcional)</Label>
@@ -70,12 +70,12 @@ export function RegisterForm() {
       <div className="space-y-2">
         <Label htmlFor="password">Contraseña</Label>
         <Input id="password" name="password" type="password" />
-        {errors.password && <p className="text-xs text-destructive-foreground">{errors.password}</p>}
+        {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Repetir contraseña</Label>
         <Input id="confirmPassword" name="confirmPassword" type="password" />
-        {errors.confirmPassword && <p className="text-xs text-destructive-foreground">{errors.confirmPassword}</p>}
+        {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
       </div>
       <Button type="submit" disabled={pending} className="w-full">{pending ? "Creando cuenta..." : "Crear cuenta"}</Button>
       <div className="relative">

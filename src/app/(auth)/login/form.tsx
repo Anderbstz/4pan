@@ -58,7 +58,7 @@ export function LoginForm() {
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" />
-        {errors.email && <p className="text-xs text-destructive-foreground">{errors.email}</p>}
+        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -66,7 +66,7 @@ export function LoginForm() {
           <a href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary underline">Olvidé mi contraseña</a>
         </div>
         <Input id="password" name="password" type="password" />
-        {errors.password && <p className="text-xs text-destructive-foreground">{errors.password}</p>}
+        {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
       </div>
       <Button type="submit" disabled={pending} className="w-full">{pending ? "Iniciando sesión..." : "Iniciar sesión"}</Button>
       <div className="relative">

@@ -89,7 +89,7 @@ export function NewPostForm({
       <div className="space-y-2">
         <Label htmlFor="title">Título</Label>
         <Input id="title" name="title" type="text" maxLength={200} />
-        {errors.title && <p className="text-xs text-destructive-foreground">{errors.title}</p>}
+        {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
       </div>
 
       <div className="space-y-2">
@@ -106,13 +106,13 @@ export function NewPostForm({
             ))}
           </SelectContent>
         </Select>
-        {errors.section && <p className="text-xs text-destructive-foreground">{errors.section}</p>}
+        {errors.section && <p className="text-xs text-destructive">{errors.section}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="content">Contenido</Label>
         <Textarea id="content" name="content" rows={8} />
-        {errors.content && <p className="text-xs text-destructive-foreground">{errors.content}</p>}
+        {errors.content && <p className="text-xs text-destructive">{errors.content}</p>}
       </div>
 
       <Label className="flex items-center gap-2 text-sm cursor-pointer">
