@@ -152,9 +152,6 @@ export function NewPostForm({
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Publicando..." : "Publicar"}
       </Button>
-      <button type="button" onClick={() => toast.success("🔥 Test toast")} className="text-xs text-muted-foreground underline">
-        test toast
-      </button>
     </form>
   );
 }
