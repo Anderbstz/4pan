@@ -17,13 +17,13 @@ export async function Navbar() {
         </Link>
 
         <nav className="flex items-center gap-2 sm:gap-4">
+          <Link href="/nuevo">
+            <Button variant="default" size="sm" className="text-xs sm:text-sm sm:h-9">
+              + Nuevo
+            </Button>
+          </Link>
           {session?.user ? (
             <>
-              <Link href="/nuevo">
-                <Button variant="default" size="sm" className="text-xs sm:text-sm sm:h-9">
-                  + Nuevo
-                </Button>
-              </Link>
               <Link href="/perfil">
                 <Avatar
                   src={session.user.image}
