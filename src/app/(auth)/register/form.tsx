@@ -45,7 +45,11 @@ export function RegisterForm() {
   );
 
   useEffect(() => {
-    if (state?.success) { toast.success("Cuenta creada"); router.push("/"); router.refresh(); }
+    if (state?.success) {
+      toast.success("Cuenta creada");
+      const t = setTimeout(() => { router.push("/"); router.refresh(); }, 800);
+      return () => clearTimeout(t);
+    }
   }, [state, router]);
 
   return (

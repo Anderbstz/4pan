@@ -47,7 +47,11 @@ export function LoginForm() {
   );
 
   useEffect(() => {
-    if (state?.success) { toast.success("Sesión iniciada"); router.push("/"); router.refresh(); }
+    if (state?.success) {
+      toast.success("Sesión iniciada");
+      const t = setTimeout(() => { router.push("/"); router.refresh(); }, 800);
+      return () => clearTimeout(t);
+    }
   }, [state, router]);
 
   return (

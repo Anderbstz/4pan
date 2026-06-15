@@ -73,8 +73,8 @@ export function NewPostForm({
   useEffect(() => {
     if (state?.success) {
       toast.success("Publicación creada");
-      router.push("/");
-      router.refresh();
+      const t = setTimeout(() => { router.push("/"); router.refresh(); }, 800);
+      return () => clearTimeout(t);
     }
   }, [state, router]);
 

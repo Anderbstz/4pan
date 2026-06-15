@@ -35,11 +35,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <SessionProvider>{children}</SessionProvider>
         <Toaster
+          richColors
           position="bottom-right"
-          toastOptions={{
-            className: "bg-card border-border text-foreground text-sm",
-            duration: 3000,
-          }}
+          duration={3000}
         />
       </body>
     </html>
