@@ -61,13 +61,7 @@ export function NewPostForm({
   const [anonymous, setAnonymous] = useState(!isLoggedIn);
   const [errors, setErrors] = useState<Errors>({});
   const [state, formAction, pending] = useActionState<CreatePostState, FormData>(
-    async (prev, formData) => {
-      const v = validate(formData);
-      setErrors(v);
-      if (Object.keys(v).length > 0) return prev;
-      return createPost(prev, formData);
-    },
-    undefined,
+    createPost, undefined,
   );
 
   useEffect(() => {
@@ -78,8 +72,20 @@ export function NewPostForm({
     }
   }, [state, router]);
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const v = validate(data);
+    setErrors(v);
+    if (Object.keys(v).length > 0) return;
+    // Use the form action directly
+    const formData = new FormData(form);
+    formAction(formData);
+  }
+
   return (
-    <form ref={formRef} action={formAction} className="space-y-4" noValidate>
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" noValidate>
       {state?.error && (
         <p className="text-sm text-destructive-foreground bg-destructive/10 px-3 py-2 rounded">
           {state.error}
@@ -142,6 +148,9 @@ export function NewPostForm({
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Publicando..." : "Publicar"}
       </Button>
+      <button type="button" onClick={() => toast.success("🔥 Test toast")} className="text-xs text-muted-foreground underline">
+        test toast
+      </button>
     </form>
   );
 }
