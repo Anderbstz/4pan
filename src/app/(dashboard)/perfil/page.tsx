@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ProfileForm } from "./form";
+import { AvatarUpload } from "./avatar-upload";
 import { Avatar } from "@/components/avatar";
 import { getUserProfile } from "@/actions/profile";
 
@@ -28,6 +29,7 @@ export default async function ProfilePage() {
                 name={profile.displayName ?? profile.username}
                 size="lg"
               />
+              <AvatarUpload />
               <h2 className="text-xl font-bold mt-4">{profile.displayName ?? profile.username}</h2>
               <p className="text-sm text-muted-foreground">@{profile.username}</p>
               <p className="text-sm text-muted-foreground mt-1">{profile.email}</p>
