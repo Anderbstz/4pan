@@ -13,11 +13,12 @@ export function AvatarUpload() {
   const [state, formAction, pending] = useActionState<UploadState, FormData>(uploadAvatar, undefined);
 
   useEffect(() => {
-    if (state?.success) {
+    async function handleSuccess() {
       toast.success("Avatar actualizado");
-      update({ image: state.url });
+      await update({ image: state!.url });
       router.refresh();
     }
+    if (state?.success) { handleSuccess(); }
     if (state?.error) toast.error(state.error);
   }, [state, router, update]);
 

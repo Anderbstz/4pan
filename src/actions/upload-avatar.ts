@@ -23,6 +23,16 @@ export async function uploadAvatar(
   if (!file) return { error: "Seleccioná una imagen" };
   if (file.size > 2 * 1024 * 1024) return { error: "La imagen no puede superar los 2MB" };
 
+  // Delete old avatar files for this user
+  const { data: oldFiles } = await supabase.storage
+    .from("avatars")
+    .list(session.user.id);
+  if (oldFiles && oldFiles.length > 0) {
+    await supabase.storage
+      .from("avatars")
+      .remove(oldFiles.map((f) => `${session.user.id}/${f.name}`));
+  }
+
   const ext = file.name.split(".").pop() ?? "jpg";
   const path = `${session.user.id}/avatar.${ext}`;
 
