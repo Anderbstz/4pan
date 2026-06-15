@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { createPost } from "@/actions/posts";
+import { useActionState, useEffect, useState, useRef } from "react";
+import { createPost, type CreatePostState } from "@/actions/posts";
 import { sectionLabels } from "@/lib/sections";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,29 @@ const SECTION_VALUES = [
 
 const sections = SECTION_VALUES.map((s) => ({ value: s, label: sectionLabels[s] }));
 
+type Errors = {
+  title?: string;
+  section?: string;
+  content?: string;
+};
+
+function validate(formData: FormData): Errors {
+  const errors: Errors = {};
+  const title = (formData.get("title") as string)?.trim();
+  const section = formData.get("section") as string;
+  const content = (formData.get("content") as string)?.trim();
+
+  if (!title) errors.title = "El título es obligatorio";
+  else if (title.length > 200) errors.title = "El título no puede superar los 200 caracteres";
+
+  if (!section) errors.section = "Seleccioná una sección";
+
+  if (!content) errors.content = "El contenido es obligatorio";
+  else if (content.length < 10) errors.content = "El contenido debe tener al menos 10 caracteres";
+
+  return errors;
+}
+
 export function NewPostForm({
   session: _session,
 }: {
@@ -33,8 +56,18 @@ export function NewPostForm({
 }) {
   const isLoggedIn = !!_session;
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [anonymous, setAnonymous] = useState(!isLoggedIn);
-  const [state, formAction, pending] = useActionState(createPost, undefined);
+  const [errors, setErrors] = useState<Errors>({});
+  const [state, formAction, pending] = useActionState<CreatePostState, FormData>(
+    async (prev, formData) => {
+      const v = validate(formData);
+      setErrors(v);
+      if (Object.keys(v).length > 0) return prev;
+      return createPost(prev, formData);
+    },
+    undefined,
+  );
 
   useEffect(() => {
     if (state?.success) {
@@ -44,7 +77,7 @@ export function NewPostForm({
   }, [state, router]);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form ref={formRef} action={formAction} className="space-y-4" noValidate>
       {state?.error && (
         <p className="text-sm text-destructive-foreground bg-destructive/10 px-3 py-2 rounded">
           {state.error}
@@ -53,12 +86,13 @@ export function NewPostForm({
 
       <div className="space-y-2">
         <Label htmlFor="title">Título</Label>
-        <Input id="title" name="title" type="text" required maxLength={200} />
+        <Input id="title" name="title" type="text" maxLength={200} />
+        {errors.title && <p className="text-xs text-destructive-foreground">{errors.title}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="section">Sección</Label>
-        <Select name="section" required>
+        <Select name="section">
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Seleccioná una sección" />
           </SelectTrigger>
@@ -70,11 +104,13 @@ export function NewPostForm({
             ))}
           </SelectContent>
         </Select>
+        {errors.section && <p className="text-xs text-destructive-foreground">{errors.section}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="content">Contenido</Label>
-        <Textarea id="content" name="content" required rows={8} />
+        <Textarea id="content" name="content" rows={8} />
+        {errors.content && <p className="text-xs text-destructive-foreground">{errors.content}</p>}
       </div>
 
       <Label className="flex items-center gap-2 text-sm cursor-pointer">

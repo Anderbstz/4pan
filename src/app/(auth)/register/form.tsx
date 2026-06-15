@@ -1,77 +1,87 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { registerUser, type RegisterState } from "@/actions/register";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
+type Errors = {
+  email?: string; username?: string; password?: string; confirmPassword?: string;
+};
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validate(formData: FormData): Errors {
+  const e: Errors = {};
+  const email = (formData.get("email") as string)?.trim();
+  const username = (formData.get("username") as string)?.trim();
+  const password = formData.get("password") as string;
+  const confirm = formData.get("confirmPassword") as string;
+  if (!email) e.email = "El email es obligatorio";
+  else if (!emailRegex.test(email)) e.email = "Ingresá un email válido";
+  if (!username) e.username = "El usuario es obligatorio";
+  else if (username.length < 3) e.username = "El usuario debe tener al menos 3 caracteres";
+  if (!password) e.password = "La contraseña es obligatoria";
+  else if (password.length < 6) e.password = "La contraseña debe tener al menos 6 caracteres";
+  if (!confirm) e.confirmPassword = "Repetí la contraseña";
+  else if (password && confirm !== password) e.confirmPassword = "Las contraseñas no coinciden";
+  return e;
+}
+
 export function RegisterForm() {
   const router = useRouter();
-  const [state, formAction, pending] = useActionState(registerUser, undefined as RegisterState);
+  const [errors, setErrors] = useState<Errors>({});
+  const [state, formAction, pending] = useActionState<RegisterState, FormData>(
+    async (prev, formData) => {
+      const v = validate(formData);
+      setErrors(v);
+      if (Object.keys(v).length > 0) return prev;
+      return registerUser(prev, formData);
+    },
+    undefined,
+  );
 
   useEffect(() => {
-    if (state?.success) {
-      router.push("/");
-      router.refresh();
-    }
+    if (state?.success) { router.push("/"); router.refresh(); }
   }, [state, router]);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-4" noValidate>
       {state?.error && (
-        <p className="text-sm text-destructive-foreground bg-destructive/10 px-3 py-2 rounded">
-          {state.error}
-        </p>
+        <p className="text-sm text-destructive-foreground bg-destructive/10 px-3 py-2 rounded">{state.error}</p>
       )}
-
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required />
+        <Input id="email" name="email" type="email" />
+        {errors.email && <p className="text-xs text-destructive-foreground">{errors.email}</p>}
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="username">Usuario</Label>
-        <Input id="username" name="username" type="text" required minLength={3} />
+        <Input id="username" name="username" type="text" />
+        {errors.username && <p className="text-xs text-destructive-foreground">{errors.username}</p>}
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="displayName">Nombre público (opcional)</Label>
         <Input id="displayName" name="displayName" type="text" />
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="password">Contraseña</Label>
-        <Input id="password" name="password" type="password" required minLength={6} />
+        <Input id="password" name="password" type="password" />
+        {errors.password && <p className="text-xs text-destructive-foreground">{errors.password}</p>}
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Repetir contraseña</Label>
-        <Input id="confirmPassword" name="confirmPassword" type="password" required minLength={6} />
+        <Input id="confirmPassword" name="confirmPassword" type="password" />
+        {errors.confirmPassword && <p className="text-xs text-destructive-foreground">{errors.confirmPassword}</p>}
       </div>
-
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? "Creando cuenta..." : "Crear cuenta"}
-      </Button>
-
+      <Button type="submit" disabled={pending} className="w-full">{pending ? "Creando cuenta..." : "Crear cuenta"}</Button>
       <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">o registrate con</span>
-        </div>
+        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+        <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">o registrate con</span></div>
       </div>
-
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={() => signIn("google", { redirectTo: "/" })}
-      >
+      <Button type="button" variant="outline" className="w-full" onClick={() => signIn("google", { redirectTo: "/" })}>
         <svg className="size-4 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
