@@ -10,7 +10,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-export type UploadState = { error?: string; success?: boolean } | undefined;
+export type UploadState = { error?: string; success?: boolean; url?: string } | undefined;
 
 export async function uploadAvatar(
   _prevState: UploadState,
@@ -42,5 +42,5 @@ export async function uploadAvatar(
   });
 
   revalidatePath("/perfil");
-  return { success: true };
+  return { success: true, url: urlData.publicUrl };
 }
