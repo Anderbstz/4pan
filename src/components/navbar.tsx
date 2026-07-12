@@ -6,9 +6,12 @@ import { LogoutButton } from "@/components/logout-button";
 import { Avatar } from "@/components/avatar";
 import { SearchInput } from "@/components/search-input";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBell } from "@/components/notification-bell";
+import { getUnreadCount } from "@/actions/notifications";
 
 export async function Navbar() {
   const session = await auth();
+  const unreadCount = await getUnreadCount();
 
   return (
     <header className="border-border/80 border-b sticky top-0 bg-background/85 backdrop-blur-md z-50 transition-colors">
@@ -35,6 +38,8 @@ export async function Navbar() {
           </Link>
           
           <ThemeToggle />
+
+          <NotificationBell initialCount={unreadCount} />
 
           <div className="h-5 w-px bg-border/80 hidden sm:block" />
 

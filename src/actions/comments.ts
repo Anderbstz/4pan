@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createCommentSchema } from "@/lib/schemas";
+import { createNotification } from "@/actions/notifications";
 
 export async function createComment(formData: FormData) {
   const session = await auth();
@@ -26,6 +27,21 @@ export async function createComment(formData: FormData) {
       parentId,
     },
   });
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true, isAnonymous: true, title: true },
+  });
+
+  if (post && post.authorId && post.authorId !== session.user.id && !post.isAnonymous) {
+    await createNotification({
+      userId: post.authorId,
+      type: "COMMENT",
+      title: `Comentaron tu post "${post.title}"`,
+      body: content.length > 120 ? content.slice(0, 120) + "..." : content,
+      link: `/post/${postId}`,
+    });
+  }
 
   revalidatePath(`/post/${postId}`);
   return { success: true };

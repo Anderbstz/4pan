@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { toggleReactionSchema } from "@/lib/schemas";
+import { createNotification } from "@/actions/notifications";
 
 export async function toggleReaction(postId: string, emoji: string) {
   const parsed = toggleReactionSchema.safeParse({ postId, emoji });
@@ -36,6 +37,21 @@ export async function toggleReaction(postId: string, emoji: string) {
         userId: session.user.id,
       },
     });
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { authorId: true, isAnonymous: true, title: true },
+    });
+
+    if (post && post.authorId && post.authorId !== session.user.id && !post.isAnonymous) {
+      await createNotification({
+        userId: post.authorId,
+        type: "REACTION",
+        title: `Reaccionaron a tu post "${post.title}"`,
+        body: `${emoji}`,
+        link: `/post/${postId}`,
+      });
+    }
   }
 
   revalidatePath(`/post/${postId}`);
