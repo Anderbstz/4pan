@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createCommentSchema } from "@/lib/schemas";
 
 export async function createComment(formData: FormData) {
   const session = await auth();
@@ -10,16 +11,12 @@ export async function createComment(formData: FormData) {
     return { error: "Tenés que iniciar sesión para comentar" };
   }
 
-  const postId = formData.get("postId") as string;
-  const content = formData.get("content") as string;
-  const parentId = (formData.get("parentId") as string) || null;
-
-  if (!postId || !content) {
-    return { error: "Faltan datos para comentar" };
+  const parsed = createCommentSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0]?.message ?? "Datos inválidos";
+    return { error: firstError };
   }
-  if (content.length > 1000) {
-    return { error: "El comentario no puede superar los 1000 caracteres" };
-  }
+  const { postId, content, parentId } = parsed.data;
 
   await prisma.comment.create({
     data: {

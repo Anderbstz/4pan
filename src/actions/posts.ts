@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { Section } from "@/generated/prisma/client";
+import { createPostSchema } from "@/lib/schemas";
 
 export type CreatePostState = {
   error?: string;
@@ -26,23 +27,13 @@ export async function createPost(
   const session = await auth();
   const ip = await getClientIp();
 
-  const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
-  const section = formData.get("section") as Section;
-  const isAnonymous = formData.get("isAnonymous") === "true";
-
-  if (!title || !content || !section) {
-    return { error: "Faltan campos obligatorios" };
+  const parsed = createPostSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0]?.message ?? "Datos inválidos";
+    return { error: firstError };
   }
-  if (title.length > 50) {
-    return { error: "El título no puede superar los 50 caracteres" };
-  }
-  if (content.length > 7500) {
-    return { error: "El contenido no puede superar los 7500 caracteres" };
-  }
-  if (!Object.values(Section).includes(section)) {
-    return { error: "Sección inválida" };
-  }
+  const { title, content, section, isAnonymous: isAnon } = parsed.data;
+  const isAnonymous = isAnon === "true";
 
   // Límite de 5 posts por día
   const todayStart = new Date();

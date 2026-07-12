@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/navbar";
 import { getPostById } from "@/actions/posts";
 import { getComments } from "@/actions/comments";
 import { getReactions } from "@/actions/reactions";
@@ -20,16 +19,11 @@ export default async function PostPage({
   if (!post) notFound();
 
   return (
-    <>
-      <Navbar />
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
-        <PostContent
-          post={post}
-          comments={comments}
-          reactions={reactions}
-          userReactions={userReactions}
-        />
-      </main>
-    </>
+    <PostContent
+      post={post}
+      comments={comments}
+      reactions={reactions}
+      userReactions={userReactions}
+    />
   );
 }

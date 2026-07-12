@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signIn } from "@/lib/auth";
+import { registerSchema } from "@/lib/schemas";
 
 export type RegisterState = {
   error?: string;
@@ -13,24 +14,12 @@ export async function registerUser(
   _prevState: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
-  const email = formData.get("email") as string;
-  const username = formData.get("username") as string;
-  const displayName = formData.get("displayName") as string;
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (!email || !username || !password) {
-    return { error: "Email, usuario y contraseña son obligatorios" };
+  const parsed = registerSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0]?.message ?? "Datos inválidos";
+    return { error: firstError };
   }
-  if (password.length < 6) {
-    return { error: "La contraseña debe tener al menos 6 caracteres" };
-  }
-  if (password !== confirmPassword) {
-    return { error: "Las contraseñas no coinciden" };
-  }
-  if (username.length < 3) {
-    return { error: "El usuario debe tener al menos 3 caracteres" };
-  }
+  const { email, username, displayName, password } = parsed.data;
 
   const existingUser = await prisma.user.findFirst({
     where: {

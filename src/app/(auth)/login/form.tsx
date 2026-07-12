@@ -1,27 +1,17 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { loginSchema, type LoginInput } from "@/lib/schemas";
 
 type LoginState = { error?: string; success?: boolean } | undefined;
-type Errors = { email?: string; password?: string };
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function validate(formData: FormData): Errors {
-  const e: Errors = {};
-  const email = (formData.get("email") as string)?.trim();
-  const password = formData.get("password") as string;
-  if (!email) e.email = "El email es obligatorio";
-  else if (!emailRegex.test(email)) e.email = "Ingresá un email válido";
-  if (!password) e.password = "La contraseña es obligatoria";
-  else if (password.length < 6) e.password = "La contraseña debe tener al menos 6 caracteres";
-  return e;
-}
 
 async function loginUser(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const result = await signIn("credentials", {
@@ -35,8 +25,10 @@ async function loginUser(_prev: LoginState, formData: FormData): Promise<LoginSt
 
 export function LoginForm() {
   const router = useRouter();
-  const [errors, setErrors] = useState<Errors>({});
   const [state, formAction, pending] = useActionState(loginUser, undefined);
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+  });
 
   useEffect(() => {
     if (state?.success) {
@@ -47,35 +39,30 @@ export function LoginForm() {
     if (state?.error) toast.error(state.error);
   }, [state, router]);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    const v = validate(data);
-    setErrors(v);
-    if (Object.keys(v).length > 0) {
-      toast.error("Completá todos los campos correctamente");
-      return;
-    }
-    formAction(data);
+  function onSubmit(data: LoginInput) {
+    const formData = new FormData();
+    formData.set("email", data.email);
+    formData.set("password", data.password);
+    formAction(formData);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       {state?.error && (
         <p className="text-sm text-destructive-foreground bg-destructive/10 px-3 py-2 rounded">{state.error}</p>
       )}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" />
-        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+        <Input id="email" type="email" {...register("email")} />
+        {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Contraseña</Label>
           <a href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary underline">Olvidé mi contraseña</a>
         </div>
-        <Input id="password" name="password" type="password" />
-        {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+        <Input id="password" type="password" {...register("password")} />
+        {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
       </div>
       <Button type="submit" disabled={pending} className="w-full">{pending ? "Iniciando sesión..." : "Iniciar sesión"}</Button>
       <div className="relative">

@@ -3,8 +3,14 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { toggleReactionSchema } from "@/lib/schemas";
 
 export async function toggleReaction(postId: string, emoji: string) {
+  const parsed = toggleReactionSchema.safeParse({ postId, emoji });
+  if (!parsed.success) {
+    return { error: "Datos inválidos" };
+  }
+
   const session = await auth();
   if (!session?.user?.id) {
     return { error: "Tenés que iniciar sesión" };

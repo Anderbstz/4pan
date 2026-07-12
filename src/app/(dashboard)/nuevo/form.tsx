@@ -1,8 +1,11 @@
 "use client";
 
 import { useActionState, useEffect, useState, useRef } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { createPost, type CreatePostState } from "@/actions/posts";
+import { createPostSchema, type CreatePostInput } from "@/lib/schemas";
 import { sectionLabels } from "@/lib/sections";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -17,39 +20,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-const SECTION_VALUES = [
-  "POESIA",
-  "CARTAS_NO_ENVIADAS",
-  "CONFESIONES",
-  "MICRORRELATOS",
-  "DESAHOGO",
-] as const;
-
-const sections = SECTION_VALUES.map((s) => ({ value: s, label: sectionLabels[s] }));
-
-type Errors = {
-  title?: string;
-  section?: string;
-  content?: string;
-};
-
-function validate(formData: FormData): Errors {
-  const errors: Errors = {};
-  const title = (formData.get("title") as string)?.trim();
-  const section = formData.get("section") as string;
-  const content = (formData.get("content") as string)?.trim();
-
-  if (!title) errors.title = "El título es obligatorio";
-  else if (title.length > 50) errors.title = "El título no puede superar los 50 caracteres";
-
-  if (!section) errors.section = "Seleccioná una sección";
-
-  if (!content) errors.content = "El contenido es obligatorio";
-  else if (content.length < 10) errors.content = "El contenido debe tener al menos 10 caracteres";
-  else if (content.length > 7500) errors.content = "El contenido no puede superar los 7500 caracteres";
-
-  return errors;
-}
+const sections = Object.entries(sectionLabels).map(([value, label]) => ({ value, label }));
 
 export function NewPostForm({
   session: _session,
@@ -60,10 +31,12 @@ export function NewPostForm({
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [anonymous, setAnonymous] = useState(!isLoggedIn);
-  const [errors, setErrors] = useState<Errors>({});
   const [state, formAction, pending] = useActionState<CreatePostState, FormData>(
     createPost, undefined,
   );
+  const { register, handleSubmit, control, formState: { errors } } = useForm<CreatePostInput>({
+    resolver: zodResolver(createPostSchema),
+  });
 
   useEffect(() => {
     if (state?.success) {
@@ -74,23 +47,19 @@ export function NewPostForm({
     if (state?.error) toast.error(state.error);
   }, [state, router]);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    const v = validate(data);
-    setErrors(v);
-    if (Object.keys(v).length > 0) {
-      toast.error("Completá todos los campos correctamente");
-      return;
+  function onSubmit(data: CreatePostInput) {
+    const formData = new FormData();
+    formData.set("title", data.title);
+    formData.set("content", data.content);
+    formData.set("section", data.section);
+    if (data.isAnonymous || !isLoggedIn) {
+      formData.set("isAnonymous", "true");
     }
-    // Use the form action directly
-    const formData = new FormData(form);
     formAction(formData);
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       {state?.error && (
         <p className="text-sm text-destructive-foreground bg-destructive/10 px-3 py-2 rounded">
           {state.error}
@@ -99,31 +68,37 @@ export function NewPostForm({
 
       <div className="space-y-2">
         <Label htmlFor="title">Título</Label>
-        <Input id="title" name="title" type="text" maxLength={50} />
-        {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
+        <Input id="title" type="text" maxLength={50} {...register("title")} />
+        {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="section">Sección</Label>
-        <Select name="section">
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Seleccioná una sección" />
-          </SelectTrigger>
-          <SelectContent>
-            {sections.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.section && <p className="text-xs text-destructive">{errors.section}</p>}
+        <Controller
+          name="section"
+          control={control}
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} value={field.value}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleccioná una sección" />
+              </SelectTrigger>
+              <SelectContent>
+                {sections.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.section && <p className="text-xs text-destructive">{errors.section.message}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="content">Contenido</Label>
-        <Textarea id="content" name="content" rows={8} />
-        {errors.content && <p className="text-xs text-destructive">{errors.content}</p>}
+        <Textarea id="content" rows={8} {...register("content")} />
+        {errors.content && <p className="text-xs text-destructive">{errors.content.message}</p>}
       </div>
 
       <Label className="flex items-center gap-2 text-sm cursor-pointer">
