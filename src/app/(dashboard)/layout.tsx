@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "./sidebar";
 import { MobileSectionBar } from "./mobile-sections";
+import { RightSidebar, RightSidebarSkeleton } from "./right-sidebar";
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,7 @@ export default function DashboardLayout({
   return (
     <>
       <Navbar />
-      <div className="flex-1 flex gap-0 md:gap-6 max-w-5xl mx-auto w-full px-4 py-4 md:py-6">
+      <div className="flex-1 flex gap-0 md:gap-6 max-w-5xl lg:max-w-7xl mx-auto w-full px-4 py-4 md:py-6">
         <Suspense fallback={null}>
           <Sidebar />
         </Suspense>
@@ -21,6 +22,9 @@ export default function DashboardLayout({
           </Suspense>
           {children}
         </div>
+        <Suspense fallback={<RightSidebarSkeleton />}>
+          <RightSidebar />
+        </Suspense>
       </div>
     </>
   );

@@ -89,12 +89,23 @@ export async function createPost(
   return { success: true };
 }
 
-export async function getPostsBySection(section?: Section, page = 1) {
+export async function getPostsBySection(section?: Section, page = 1, search?: string) {
   const session = await auth();
   const itemsPerPage = 20;
 
+  const whereClause: any = {};
+  if (section) {
+    whereClause.section = section;
+  }
+  if (search) {
+    whereClause.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { content: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
   const posts = await prisma.post.findMany({
-    where: section ? { section } : undefined,
+    where: whereClause,
     orderBy: { createdAt: "desc" },
     take: itemsPerPage,
     skip: (page - 1) * itemsPerPage,
@@ -155,7 +166,7 @@ export async function getPostsBySection(section?: Section, page = 1) {
   const total = posts.length < itemsPerPage
     ? (page - 1) * itemsPerPage + posts.length
     : await prisma.post.count({
-        where: section ? { section } : undefined,
+        where: whereClause,
       });
 
   return {

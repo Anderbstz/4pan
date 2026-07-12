@@ -52,7 +52,7 @@ export function FeedContent({
             href={`/post/${post.id}${post.recentComments.length > 0 ? "#comments" : ""}`}
             className="block transition-colors"
           >
-            <Card className="hover:border-foreground/30 transition-colors cursor-pointer">
+            <Card className="hover:border-primary/30 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_-4px_rgba(139,94,60,0.08)] active:scale-[0.99] transition-all duration-200 cursor-pointer">
               <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">

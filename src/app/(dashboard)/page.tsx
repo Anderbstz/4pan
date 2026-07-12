@@ -7,14 +7,14 @@ const sections = Object.values(Section) as Section[];
 export default async function FeedPage({
   searchParams,
 }: {
-  searchParams: Promise<{ seccion?: string }>;
+  searchParams: Promise<{ seccion?: string; q?: string }>;
 }) {
-  const { seccion } = await searchParams;
+  const { seccion, q } = await searchParams;
   const activeSection = seccion && sections.includes(seccion as Section)
     ? (seccion as Section)
     : undefined;
 
-  const { posts } = await getPostsBySection(activeSection);
+  const { posts } = await getPostsBySection(activeSection, 1, q);
 
   return <FeedContent posts={posts} activeSection={activeSection} />;
 }
