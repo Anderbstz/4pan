@@ -22,7 +22,9 @@ export default function DashboardLayout({
             <MobileSectionBar />
           </Suspense>
           <div className="sm:hidden mb-4">
-            <SearchInput />
+            <Suspense fallback={null}>
+              <SearchInput />
+            </Suspense>
           </div>
           {children}
         </div>
