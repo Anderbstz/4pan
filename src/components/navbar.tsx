@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,9 @@ export async function Navbar() {
 
         {/* Center: Search Box */}
         <div className="flex-1 justify-center hidden sm:flex">
-          <SearchInput />
+          <Suspense fallback={null}>
+            <SearchInput />
+          </Suspense>
         </div>
 
         {/* Right: User menu & Dark mode toggle */}
