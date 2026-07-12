@@ -19,7 +19,7 @@ export async function Navbar() {
         </Link>
 
         {/* Center: Search Box */}
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 justify-center hidden sm:flex">
           <SearchInput />
         </div>
 

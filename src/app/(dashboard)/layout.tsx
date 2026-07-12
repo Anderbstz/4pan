@@ -3,6 +3,7 @@ import { Navbar } from "@/components/navbar";
 import { Sidebar } from "./sidebar";
 import { MobileSectionBar } from "./mobile-sections";
 import { RightSidebar, RightSidebarSkeleton } from "./right-sidebar";
+import { SearchInput } from "@/components/search-input";
 
 export default function DashboardLayout({
   children,
@@ -20,6 +21,9 @@ export default function DashboardLayout({
           <Suspense fallback={null}>
             <MobileSectionBar />
           </Suspense>
+          <div className="sm:hidden mb-4">
+            <SearchInput />
+          </div>
           {children}
         </div>
         <Suspense fallback={<RightSidebarSkeleton />}>

@@ -44,7 +44,7 @@ export function SearchInput() {
   };
 
   return (
-    <div className="relative w-full max-w-[140px] sm:max-w-[280px] md:max-w-[340px] group">
+    <div className="relative w-full sm:max-w-[280px] md:max-w-[340px] group">
       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
       <Input
         type="text"
