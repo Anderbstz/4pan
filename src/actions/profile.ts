@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export type ProfileState = { error?: string; success?: boolean } | undefined;
+export type ProfileState = { error?: string; success?: boolean; displayName?: string } | undefined;
 
 export async function updateDisplayName(
   _prevState: ProfileState,
@@ -27,7 +27,7 @@ export async function updateDisplayName(
   });
 
   revalidatePath("/perfil");
-  return { success: true };
+  return { success: true, displayName };
 }
 
 export async function getUserProfile() {
