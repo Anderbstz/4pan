@@ -5,10 +5,12 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
 
 export type UploadState = { error?: string; success?: boolean; url?: string } | undefined;
 
@@ -22,6 +24,9 @@ export async function uploadAvatar(
   const file = formData.get("avatar") as File;
   if (!file) return { error: "Seleccioná una imagen" };
   if (file.size > 2 * 1024 * 1024) return { error: "La imagen no puede superar los 2MB" };
+
+  const supabase = getSupabase();
+  if (!supabase) return { error: "Supabase no está configurado" };
 
   // Delete old avatar files for this user
   const { data: oldFiles } = await supabase.storage
