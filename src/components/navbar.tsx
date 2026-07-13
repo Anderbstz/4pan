@@ -3,8 +3,8 @@ import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
-import { Avatar } from "@/components/avatar";
 import { SearchInput } from "@/components/search-input";
+import { NavbarAvatar } from "@/components/navbar-avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationBell } from "@/components/notification-bell";
 import { getUnreadCount } from "@/actions/notifications";
@@ -45,14 +45,7 @@ export async function Navbar() {
 
           {session?.user ? (
             <div className="flex items-center gap-1.5 sm:gap-3">
-              <Link href="/perfil" className="hover:opacity-90 transition-opacity">
-                <Avatar
-                  src={session.user.image}
-                  name={session.user.name}
-                  size="sm"
-                  className="border border-border size-8 shadow-sm"
-                />
-              </Link>
+              <NavbarAvatar />
               <LogoutButton />
             </div>
           ) : (
