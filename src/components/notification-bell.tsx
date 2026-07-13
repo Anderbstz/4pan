@@ -1,10 +1,21 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getUnreadCount, getRecentNotifications, markAsRead, markAllAsRead, type NotificationItem } from "@/actions/notifications";
+
+function timeAgo(date: Date): string {
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "ahora";
+  if (mins < 60) return `hace ${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `hace ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `hace ${days}d`;
+}
 
 export function NotificationBell({ initialCount }: { initialCount: number }) {
   const router = useRouter();
@@ -16,7 +27,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
   // Polling cada 5s + refetch al enfocar la pestaña
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | null = null;
-    let currentInterval = 5_000;
+    const currentInterval = 5_000;
 
     async function poll() {
       const c = await getUnreadCount();
@@ -102,16 +113,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
     setCount(0);
   }
 
-  function timeAgo(date: Date): string {
-    const diff = Date.now() - new Date(date).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "ahora";
-    if (mins < 60) return `hace ${mins}m`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `hace ${hours}h`;
-    const days = Math.floor(hours / 24);
-    return `hace ${days}d`;
-  }
+
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -125,7 +127,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
       </Button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-popover border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+        <div className="fixed left-4 right-4 top-[72px] w-auto sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 bg-popover border border-border rounded-xl shadow-lg z-50 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <span className="text-sm font-semibold">Notificaciones</span>
             {count > 0 && (
