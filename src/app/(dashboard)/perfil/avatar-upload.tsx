@@ -17,9 +17,10 @@ export function AvatarUpload() {
 
   useEffect(() => {
     if (!state?.success && !state?.error) return;
-    if (handledRef.current === state.success ? state.url : state.error) return;
+    const key: string | null = state.success ? state.url ?? null : state.error ?? null;
+    if (handledRef.current === key) return;
 
-    handledRef.current = state.success ? state.url : state.error;
+    handledRef.current = key;
 
     if (state.success) {
       toast.success("Avatar actualizado");
