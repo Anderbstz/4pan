@@ -48,6 +48,12 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
     if (!open) {
       const items = await getRecentNotifications(10);
       setNotifications(items);
+      // Marcar todas como leídas al abrir el panel
+      if (count > 0) {
+        await markAllAsRead();
+        setCount(0);
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      }
     }
     setOpen(!open);
   }
