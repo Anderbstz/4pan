@@ -8,12 +8,18 @@ import { toast } from "sonner";
 export function AvatarUpload() {
   const { update } = useSession();
   const [state, formAction, pending] = useActionState<UploadState, FormData>(uploadAvatar, undefined);
-  const handledRef = useRef(false);
+  const handledRef = useRef<string | null>(null);
+
+  // Resetear cuando arranca una subida nueva
+  useEffect(() => {
+    if (pending) handledRef.current = null;
+  }, [pending]);
 
   useEffect(() => {
-    if (!state) return;
-    if (handledRef.current) return;
-    handledRef.current = true;
+    if (!state?.success && !state?.error) return;
+    if (handledRef.current === state.success ? state.url : state.error) return;
+
+    handledRef.current = state.success ? state.url : state.error;
 
     if (state.success) {
       toast.success("Avatar actualizado");
