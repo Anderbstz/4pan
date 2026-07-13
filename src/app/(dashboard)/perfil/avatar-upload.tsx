@@ -27,7 +27,7 @@ export function AvatarUpload() {
     if (state.success) {
       toast.success("Avatar actualizado");
       update({ image: state.url });
-      setTimeout(() => router.refresh(), 500);
+      router.refresh();
     }
     if (state.error) toast.error(state.error);
   }, [state]);
