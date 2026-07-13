@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 function getInitials(name: string): string {
@@ -31,7 +31,11 @@ export function Avatar({
   className?: string;
 }) {
   const [broken, setBroken] = useState(false);
-  const imgSrc = src ?? "/tuntun_sahur.jpg";
+  const [cacheBuster, setCacheBuster] = useState("0");
+  useEffect(() => { setCacheBuster(Date.now().toString()); }, [src]);
+  const imgSrc = src
+    ? `${src}${src.includes("?") ? "&" : "?"}t=${cacheBuster}`
+    : "/tuntun_sahur.jpg";
   const displayName = name ?? "?";
 
   if (broken) {
