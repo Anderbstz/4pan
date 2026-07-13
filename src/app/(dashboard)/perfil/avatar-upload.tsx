@@ -1,11 +1,13 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { uploadAvatar, type UploadState } from "@/actions/upload-avatar";
 import { toast } from "sonner";
 
 export function AvatarUpload() {
+  const router = useRouter();
   const { update } = useSession();
   const [state, formAction, pending] = useActionState<UploadState, FormData>(uploadAvatar, undefined);
   const handledRef = useRef<string | null>(null);
@@ -25,6 +27,7 @@ export function AvatarUpload() {
     if (state.success) {
       toast.success("Avatar actualizado");
       update({ image: state.url });
+      setTimeout(() => router.refresh(), 500);
     }
     if (state.error) toast.error(state.error);
   }, [state]);
