@@ -13,23 +13,49 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Polling every 30s with visibility check
+  // Polling cada 5s + refetch al enfocar la pestaña
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let currentInterval = 5_000;
+
     async function poll() {
       const c = await getUnreadCount();
       setCount(c);
     }
 
-    const interval = setInterval(poll, 30_000);
-    const onVisibility = () => {
-      if (document.hidden) clearInterval(interval);
-      else setInterval(poll, 30_000);
-    };
+    function start() {
+      stop();
+      intervalId = setInterval(poll, currentInterval);
+    }
+
+    function stop() {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    }
+
+    function onVisibility() {
+      if (document.hidden) {
+        stop();
+      } else {
+        poll();       // refesh inmediato al volver
+        start();      // reanudar polling
+      }
+    }
+
+    function onFocus() {
+      poll(); // refesh inmediato al enfocar la ventana
+    }
+
+    start();
     document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", onFocus);
 
     return () => {
-      clearInterval(interval);
+      stop();
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", onFocus);
     };
   }, []);
 
