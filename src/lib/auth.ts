@@ -50,7 +50,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.picture = user.image;
       }
       if (trigger === "update" && newSession) {
-        token.picture = newSession.image ?? token.picture;
+        if (newSession.name !== undefined) token.name = newSession.name;
+        if (newSession.image !== undefined) token.picture = newSession.image;
       }
       return token;
     },
