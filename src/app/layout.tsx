@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "4pan — expresión anónima",
+  title: "4pan",
   description: "Compartí poemas, cartas no enviadas, confesiones y microrrelatos en un espacio seguro y anónimo.",
   icons: {
     icon: "/4pan.ico",
