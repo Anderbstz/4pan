@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getUnreadCount, getRecentNotifications, markAsRead, markAllAsRead, type NotificationItem } from "@/actions/notifications";
 
 export function NotificationBell({ initialCount }: { initialCount: number }) {
+  const router = useRouter();
   const [count, setCount] = useState(initialCount);
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -54,6 +56,12 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
     await markAsRead(id);
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
     setCount((c) => Math.max(0, c - 1));
+  }
+
+  async function handleClickNotification(e: React.MouseEvent, n: NotificationItem) {
+    e.preventDefault();
+    if (!n.read) await handleMarkRead(n.id);
+    router.push(n.link);
   }
 
   async function handleMarkAll() {
@@ -110,7 +118,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
                 >
                   <a
                     href={n.link}
-                    onClick={() => { if (!n.read) handleMarkRead(n.id); }}
+                    onClick={(e) => handleClickNotification(e, n)}
                     className="block space-y-1"
                   >
                     <div className="flex items-start justify-between gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { markAsRead } from "@/actions/notifications";
 import type { NotificationItem } from "@/actions/notifications";
 
@@ -17,13 +18,16 @@ function timeAgo(date: Date): string {
 }
 
 export function NotificationList({ initial }: { initial: NotificationItem[] }) {
+  const router = useRouter();
   const [items, setItems] = useState(initial);
 
-  async function handleClick(id: string, read: boolean) {
+  async function handleClick(e: React.MouseEvent<HTMLAnchorElement>, id: string, read: boolean, link: string) {
+    e.preventDefault();
     if (!read) {
       await markAsRead(id);
       setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
     }
+    router.push(link);
   }
 
   if (items.length === 0) {
@@ -41,7 +45,7 @@ export function NotificationList({ initial }: { initial: NotificationItem[] }) {
         <a
           key={n.id}
           href={n.link}
-          onClick={() => handleClick(n.id, n.read)}
+          onClick={(e) => handleClick(e, n.id, n.read, n.link)}
           className={`block px-4 py-3 rounded-lg border border-border/60 transition-colors ${
             n.read ? "bg-background hover:bg-muted/30" : "bg-muted/20 border-primary/20 hover:bg-muted/40"
           }`}
