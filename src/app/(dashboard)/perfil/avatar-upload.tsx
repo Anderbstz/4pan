@@ -18,18 +18,25 @@ export function AvatarUpload() {
   }, [pending]);
 
   useEffect(() => {
-    if (!state?.success && !state?.error) return;
-    const key: string | null = state.success ? state.url ?? null : state.error ?? null;
-    if (handledRef.current === key) return;
+    let cancelled = false;
 
-    handledRef.current = key;
+    async function handle() {
+      if (!state?.success && !state?.error) return;
+      const key: string | null = state.success ? state.url ?? null : state.error ?? null;
+      if (handledRef.current === key) return;
 
-    if (state.success) {
-      toast.success("Avatar actualizado");
-      update({ image: state.url });
-      router.refresh();
+      handledRef.current = key;
+
+      if (state.success) {
+        toast.success("Avatar actualizado");
+        await update({ image: state.url });
+        if (!cancelled) router.refresh();
+      }
+      if (state.error) toast.error(state.error);
     }
-    if (state.error) toast.error(state.error);
+
+    handle();
+    return () => { cancelled = true; };
   }, [state]);
 
   return (
